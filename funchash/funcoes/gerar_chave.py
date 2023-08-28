@@ -1,23 +1,13 @@
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
-import hashlib
-import os
 
+
+'''
+Módulo não utilizado por se tratar de RSA.
+Na teoria é um método mais seguro, porém atividade exige que
+  seja utilizado funções hash
+'''
 def gera_chaves():
-  def gera_chaves_hash():
-    seed = os.urandom(16)  # Gere uma semente aleatória
-    chave_privada = hashlib.sha256(seed).digest()
-    chave_publica = hashlib.sha256(chave_privada).digest()
-
-    return {
-        'chave_publica': chave_publica.hex(),
-        'chave_privada': chave_privada.hex()
-    }
-
- 
-'''  
- UTILIZANDO RSA (MECANISMOS MAIS SEGUROS)
- 
     chave_privada = rsa.generate_private_key(
         public_exponent=65537,
         key_size=2048,
@@ -40,4 +30,3 @@ def gera_chaves():
         'chave_publica': chave_publica_bytes.decode('utf-8'),
         'chave_privada': chave_privada_bytes.decode('utf-8')
     }
-''' 
