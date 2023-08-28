@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import Chaves
 
-# Register your models here.
+class ChavesAdmin(admin.ModelAdmin):
+    list_display = ('user', 'chave_publica', 'chave_privada')
+
+admin.site.register(Chaves, ChavesAdmin)
