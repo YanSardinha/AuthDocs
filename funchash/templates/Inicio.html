@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Docs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            background-color: #015e59;
+            color: white;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            padding-top: 20px;
+        }
+
+        img.logo {
+            width: 300px;
+            display: block;
+            margin: 20px auto;
+        }
+
+        .menu, .key-menu {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 5px;
+            width: 570px;
+            height: 59px;
+        }
+
+        .key-menu {
+            margin-top: 40px;
+        }
+
+        .menu a, .key-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .menu a:hover, .menu a.active,
+        .key-menu a:hover, .key-menu a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .documents {
+            display: flex;
+            flex-direction: column;
+            margin-top: 50px;
+            align-items: center;
+            width: 570px;
+            max-width: 570px;
+        }
+
+        .document {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            width: 570px;
+            height: 59px;
+        }
+
+        .verified-icon {
+            color: green;
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .pdf-icon {
+            color: red;
+            margin-left: 10px;
+            font-size: 24px;
+            transition: color 0.3s;
+        }
+
+        .pdf-icon:hover {
+            color: darkred;
+        }
+
+        .generate-button {
+            background-color: #F6660D;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: block;
+            width: 570px;
+            height: 59px;
+        }
+
+        .key-field {
+            width: 570px;
+            height: 59px;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+            text-align: center;
+        }
+
+        footer {
+            position: static;
+            width: 100%;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px 0;
+        }
+
+        .center-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .generate-button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+    </style>
+</head>
+
+<body class="center-content">
+
+    <img src="https://i.imgur.com/ZvEgmfo.png" alt="AuthDocs Logo" class="logo">
+    
+    <div class="menu">
+        <a href="#" id="inicio" class="active">Início</a>
+        <a href="#" id="gerarChaves">Gerar chaves</a>
+        <a href="#" id="assinarDocumento">Assinar documento</a>
+        <a href="#" id="documentos">Documentos</a>
+    </div>
+
+    <div class="content">
+        <div class="inicio-content">
+            <div class="documents">
+                <div class="document">
+                    <span class="verified-icon">&#x2714;</span>
+                    <span>Documento 1</span>
+                    <span>25/08/2023 - 15:30</span>
+                    <a href="#" class="pdf-icon" title="Download PDF"><i class="fas fa-file-pdf"></i></a>
+                </div>
+                <div class="document">
+                    <span class="verified-icon">&#x2714;</span>
+                    <span>Documento 2</span>
+                    <span>24/08/2023 - 14:15</span>
+                    <a href="#" class="pdf-icon" title="Download PDF"><i class="fas fa-file-pdf"></i></a>
+                </div>
+                <div class="document">
+                    <span class="verified-icon">&#x2714;</span>
+                    <span>Documento 3</span>
+                    <span>23/08/2023 - 16:45</span>
+                    <a href="#" class="pdf-icon" title="Download PDF"><i class="fas fa-file-pdf"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="gerarChaves-content" style="display: none;">
+            <div class="key-menu">
+                <a href="#" id="publicKeyMenu" class="active">Chave Pública</a>
+                <a href="#" id="privateKeyMenu">Chave Privada</a>
+            </div>
+            <input type="text" id="publicKey" class="key-field" placeholder="Chave Pública" readonly>
+            <input type="text" id="privateKey" class="key-field" placeholder="Chave Privada" readonly style="display: none;">
+            <div class="generate-button-container">
+                <button class="generate-button" onclick="generateKeys()">Gerar chaves</button>
+            </div>
+        </div>
+        <div class="assinarDocumento-content" style="display: none;">
+            <!-- Conteúdo para a tela "Assinar documento" -->
+        </div>
+        <div class="documentos-content" style="display: none;">
+            <!-- Conteúdo para a tela "Documentos" -->
+        </div>
+    </div>
+
+    <footer>
+        &copy; Desenvolvido pela equipe AuthDocs
+    </footer>
+
+    <script>
+        let menuItems = document.querySelectorAll('.menu a');
+        let contentSections = document.querySelectorAll('.content > div');
+        let keyMenus = document.querySelectorAll('.key-menu a');
+        let keyFields = document.querySelectorAll('.key-field');
+        
+        menuItems.forEach(item => {
+            item.addEventListener('click', function() {
+                menuItems.forEach(i => i.classList.remove('active'));
+                contentSections.forEach(section => section.style.display = 'none');
+                
+                item.classList.add('active');
+                let contentId = item.id + '-content';
+                document.querySelector('.' + contentId).style.display = 'block';
+            });
+        });
+        
+        keyMenus.forEach(menu => {
+            menu.addEventListener('click', function() {
+                keyMenus.forEach(m => m.classList.remove('active'));
+                keyFields.forEach(field => field.style.display = 'none');
+        
+                menu.classList.add('active');
+                let fieldId = menu.id.replace('Menu', '');
+                document.getElementById(fieldId).style.display = 'block';
+            });
+        });
+        
+        function generateKeys() {
+            // Gerando chaves fictícias para fins de demonstração
+            let publicKey = 'PUB-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            let privateKey = 'PRV-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+        
+            document.getElementById('publicKey').value = publicKey;
+            document.getElementById('privateKey').value = privateKey;
+        }
+    </script>
+
+</body>
+
+</html>

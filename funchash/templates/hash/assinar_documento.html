@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assinar Documento</title>
+</head>
+<body>
+    <h1>Assinar Documento</h1>
+    <form method="post" action="{% url 'assinar_documento' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="arquivo">Selecione um arquivo DOCX ou PDF:</label>
+        <input type="file" id="arquivo" name="arquivo" accept=".docx,.pdf">
+        <button type="submit">Assinar Documento</button>
+    </form>
+</body>
+</html>

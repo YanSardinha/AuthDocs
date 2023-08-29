@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Docs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            background-color: #015e59;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #register-screen, #verify-screen {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .btn, input[type="submit"], input[type="text"], input[type="password"] {
+            padding: 15px 25px;
+            border: none;
+            cursor: pointer;
+            margin: 10px 0;
+            width: 100%; 
+            max-width: 300px; /* Ajustado para ter a mesma largura */
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn-green {
+            background-color: #008000;
+            color: white;
+        }
+
+        .btn-blue {
+            background-color: #4681f4;
+            color: white;
+        }
+
+        .btn-orange {
+            background-color: #ff6b35;
+            color: white;
+        }
+
+        .btn-red {
+            background-color: #E65729;
+            color: white;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            padding: 10px 0;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        img.logo {
+            width: 300px;
+            display: block;
+            margin: 0 auto 20px auto;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div id="register-screen">
+    <img src="https://i.imgur.com/ZvEgmfo.png" alt="AuthDocs Logo" class="logo">
+    <p>Cadastre-se ou entre com sua conta:</p>
+    <form>
+        <input type="text" placeholder="Usuário" required><br>
+        <input type="password" placeholder="Senha" required><br>
+        <input type="submit" value="Cadastrar" class="btn btn-green">
+        <input type="submit" value="Entrar" class="btn btn-blue">
+    </form>
+    <button class="btn btn-orange" onclick="switchToVerifyScreen()">Verificar Documento Sem Cadastro</button>
+</div>
+
+<div id="verify-screen" style="display: none;">
+    <img src="https://i.imgur.com/ZvEgmfo.png" alt="AuthDocs Logo" class="logo">
+    <h2>Verificar Documento</h2>
+    <label for="hashInput">Insira o hash criptografado:</label>
+    <input type="text" id="hashInput" required><br>
+    <button class="btn btn-green">Verificar Documento</button>
+    <button class="btn btn-red" onclick="switchToRegisterScreen()">Voltar</button>
+</div>
+
+<footer>
+    &copy; Desenvolvido pela equipe AuthDocs
+</footer>
+
+<script>
+    function switchToVerifyScreen() {
+        document.getElementById('register-screen').style.display = 'none';
+        document.getElementById('verify-screen').style.display = 'block';
+    }
+
+    function switchToRegisterScreen() {
+        document.getElementById('verify-screen').style.display = 'none';
+        document.getElementById('register-screen').style.display = 'block';
+    }
+</script>
+
+</body>
+
+</html>
