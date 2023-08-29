@@ -1,5 +1,5 @@
 from django import forms
-from .models import Documento
+from .models import Documento, Mensagem
 
 class DocumentoForm(forms.ModelForm):
     class Meta:
@@ -17,3 +17,9 @@ class ValidacaoAssinaturaForm(forms.Form):
     def __init__(self, user, *args, **kwargs):
         super(ValidacaoAssinaturaForm, self).__init__(*args, **kwargs)
         self.fields['documento'].queryset = Documento.objects.filter(usuario=user)
+
+
+class MensagemForm(forms.ModelForm):
+    class Meta:
+        model = Mensagem
+        fields = ['conteudo']

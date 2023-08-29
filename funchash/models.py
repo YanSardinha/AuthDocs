@@ -19,3 +19,10 @@ class Documento(models.Model):
     assinatura = models.TextField(null=True, blank=True)
     conteudo_hash = models.BinaryField(null=True, blank=True)
 
+
+class Mensagem(models.Model):
+    conteudo = models.TextField()
+    assinatura = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.conteudo

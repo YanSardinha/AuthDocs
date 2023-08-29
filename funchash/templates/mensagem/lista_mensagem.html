@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista de Mensagens</title>
+</head>
+<body>
+    <h1>Lista de Mensagens</h1>
+    <ul>
+        {% for mensagem in mensagens %}
+            <li>
+                <p>{{ mensagem.conteudo }}</p>
+                <p>Assinatura: {{ mensagem.assinatura }}</p>
+                <a href="{% url 'validar_mensagem' mensagem.id %}">Validar Mensagem</a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
