@@ -17,4 +17,5 @@ class Documento(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     arquivo = models.FileField(upload_to='documentos/')
     assinatura = models.TextField(null=True, blank=True)
+    conteudo_hash = models.BinaryField(null=True, blank=True)
 

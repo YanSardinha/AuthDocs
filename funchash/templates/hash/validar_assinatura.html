@@ -1,19 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Validação de Assinatura</title>
+    <title>Validar Assinatura</title>
 </head>
 <body>
-    <h1>Validação de Assinatura</h1>
-    
+    <h1>Validar Assinatura</h1>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Verificar Assinatura</button>
+        <label for="documento_id">Selecione o Documento:</label>
+        <select name="documento_id" id="documento_id">
+            {% for documento in documentos %}
+                <option value="{{ documento.id }}">{{ documento.arquivo }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <button type="submit">Validar Assinatura</button>
     </form>
-    
-    {% if mensagem %}
-    <p>{{ mensagem }}</p>
+    <br>
+    {% if valido is not None %}
+        <p>
+            {% if valido %}
+                O documento foi assinado por você.
+            {% else %}
+                O documento NÃO foi assinado por você.
+            {% endif %}
+        </p>
     {% endif %}
 </body>
 </html>

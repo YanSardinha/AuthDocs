@@ -9,5 +9,5 @@ admin.site.register(Chaves, ChavesAdmin)
 
 @admin.register(Documento)
 class DocumentoAdmin(admin.ModelAdmin):
-    list_display = ('usuario', 'arquivo', 'assinatura')
+    list_display = ('usuario', 'arquivo', 'assinatura', 'conteudo_hash')
     list_filter = ('usuario',)

@@ -7,7 +7,27 @@ from .funcoes.gerar_chave import gera_chaves
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
+from django.contrib import messages
+from django.contrib.auth import authenticate, login
 
+
+def index(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            return redirect('inicio')  
+        else:
+            messages.error(request, 'Credenciais inválidas. Por favor, tente novamente.')
+
+    return render(request, 'base/index.html')
+
+@login_required
+def inicio(request):
+    return render(request, template_name='base/inicio.html')
 
 @login_required
 def gerar_chaves(request):
@@ -46,95 +66,71 @@ def anexar_documento(request):
 
 @login_required
 def assinar_documento(request):
-    documentos = Documento.objects.filter(usuario=request.user)
-    
     if request.method == 'POST':
-        documento_id = request.POST.get('documento')
+        documento_id = request.POST.get('documento_id')
+
+        chaves = Chaves.objects.get(user=request.user)
+        chave_privada_pem = chaves.chave_privada.encode()
+        chave_privada = serialization.load_pem_private_key(
+            chave_privada_pem,
+            password=None,
+        )
+
         documento = Documento.objects.get(id=documento_id)
-        
-        if documento:
-            # Carregar a chave privada PEM do usuário
-            private_key_pem = request.user.chaves.chave_privada
-            chave_privada = serialization.load_pem_private_key(
-                private_key_pem.encode('utf-8'),
-                password=None
-            )
 
-            # Ler o conteúdo do documento e calcular o hash
-            conteudo = documento.arquivo.read()
-            conteudo_hash = hashlib.sha256(conteudo).digest()
+        with open(documento.arquivo.path, 'rb') as f:
+            conteudo = f.read()
+        conteudo_hash = hashes.Hash(hashes.SHA256())
+        conteudo_hash.update(conteudo)
+        dados_hash = conteudo_hash.finalize()
 
-            # Assinar o hash do conteúdo com as informações do usuário
-            assinatura = assina_dados(conteudo_hash, chave_privada, request.user)
-
-            # Salvar a assinatura no documento
-            documento.assinatura = assinatura
-            documento.save()
-
-            return redirect('lista_documentos')  # Redirecionar para a lista de documentos
-
-    return render(
-        request,
-        template_name='hash/assinar_documento.html',
-        context={'documentos': documentos},
-    )
-
-def assina_dados(dados, chave_privada, usuario):
-    dados_assinatura = f"{usuario.username}:".encode('utf-8') + dados
-    assinatura = chave_privada.sign(
-        dados_assinatura,
-        padding.PSS(
-            mgf=padding.MGF1(hashes.SHA256()),
-            salt_length=padding.PSS.MAX_LENGTH
-        ),
-        hashes.SHA256()
-    )
-    return assinatura
-
-
-def valida_assinatura(documento, usuario):
-    chave_publica_pem = usuario.chaves.chave_publica.encode('utf-8')
-    chave_publica = serialization.load_pem_public_key(chave_publica_pem)
-
-    conteudo = documento.arquivo.read()
-    conteudo_hash = hashlib.sha256(conteudo).digest()
-
-    assinatura = documento.assinatura
-
-    try:
-        chave_publica.verify(
-            assinatura,
-            conteudo_hash,
+        assinatura = chave_privada.sign(
+            dados_hash,
             padding.PSS(
                 mgf=padding.MGF1(hashes.SHA256()),
                 salt_length=padding.PSS.MAX_LENGTH
             ),
             hashes.SHA256()
         )
-        return True
-    except Exception as e:
-        print(f"Erro de verificação: {e}")
-        return False
 
+        documento.assinatura = assinatura
+        documento.conteudo_hash = dados_hash
+        documento.save()
+
+        return redirect('documento_assinado')
+
+
+    documentos = Documento.objects.filter(usuario=request.user)
+    return render(request, 'hash/assinar_documento.html', {'documentos': documentos})
 
 @login_required
 def validar_assinatura(request):
-    usuario = request.user
-    mensagem = None
-
     if request.method == 'POST':
-        form = ValidacaoAssinaturaForm(request.user, request.POST)
-        if form.is_valid():
-            documento = form.cleaned_data['documento']
-            if valida_assinatura(documento, usuario):
-                mensagem = 'Assinatura válida!'
-            else:
-                mensagem = 'Assinatura inválida!'
-    else:
-        form = ValidacaoAssinaturaForm(request.user)
+        documento_id = request.POST.get('documento_id')
 
-    return render(
-        request,
-        template_name='hash/validar_assinatura.html',
-        context={'form': form, 'mensagem': mensagem},
-    )
+        chaves = Chaves.objects.get(user=request.user)
+        chave_publica_pem = chaves.chave_publica.encode()
+        chave_publica = serialization.load_pem_public_key(chave_publica_pem)
+
+        documento = Documento.objects.get(id=documento_id)
+
+        try:
+            chave_publica.verify(
+                documento.assinatura,
+                documento.conteudo_hash,
+                padding.PSS(
+                    mgf=padding.MGF1(hashes.SHA256()),
+                    salt_length=padding.PSS.MAX_LENGTH
+                ),
+                hashes.SHA256()
+            )
+            valido = True
+        except:
+            valido = False
+
+        documentos = Documento.objects.filter(usuario=request.user)
+        return render(request, 'hash/validar_assinatura.html', {'documentos': documentos, 'valido': valido})
+
+    else:
+        documentos = Documento.objects.filter(usuario=request.user)
+        return render(request, 'hash/validar_assinatura.html', {'documentos': documentos})
