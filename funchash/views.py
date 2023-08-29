@@ -11,8 +11,11 @@ def gerar_chaves(request):
     chave_obj, created = Chaves.objects.get_or_create(user=user)
 
     if not chave_obj.chave_publica or not chave_obj.chave_privada:
-        chave_obj.chave_publica = "sua_chave_publica_aqui"
-        chave_obj.chave_privada = "sua_chave_privada_aqui"
+        seed = f"{user.username}{user.email}".encode('utf-8')
+
+        chaves = gera_chaves_hash(seed)
+        chave_obj.chave_publica = chaves['chave_publica']
+        chave_obj.chave_privada = chaves['chave_privada']
         chave_obj.save()
 
     return render(
