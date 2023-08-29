@@ -1,6 +1,12 @@
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 
+
+'''
+Módulo não utilizado por se tratar de RSA.
+Na teoria é um método mais seguro, porém atividade exige que
+  seja utilizado funções hash
+'''
 def gera_chaves():
     chave_privada = rsa.generate_private_key(
         public_exponent=65537,

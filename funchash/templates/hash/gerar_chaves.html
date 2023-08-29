@@ -4,20 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerar Chaves</title>
+    <style>
+        #chaves-container {
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <h1>Gerar Chaves</h1>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit">Gerar Chaves</button>
-    </form>
-    {% if chaves %}
-        <h2>Chaves Geradas</h2>
-        <p><strong>Chave Pública:</strong></p>
-        <pre>{{ chaves.chave_publica }}</pre>
+    <button id="mostrar-chaves">Mostrar Chaves</button>
+    <div id="chaves-container">
+        {% if chaves %}
+            <h2>Chaves Geradas</h2>
+            <p><strong>Chave Pública:</strong></p>
+            <pre>{{ chaves.chave_publica }}</pre>
 
-        <p><strong>Chave Privada:</strong></p>
-        <pre>{{ chaves.chave_privada }}</pre>
-    {% endif %}
+            <p><strong>Chave Privada:</strong></p>
+            <pre>{{ chaves.chave_privada }}</pre>
+        {% endif %}
+    </div>
+    <script>
+        document.getElementById('mostrar-chaves').addEventListener('click', function() {
+            document.getElementById('chaves-container').style.display = 'block';
+        });
+    </script>
 </body>
 </html>
