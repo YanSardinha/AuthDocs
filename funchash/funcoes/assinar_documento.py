@@ -1,3 +1,4 @@
+from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 
 def assina_dados(dados, chave_privada):
@@ -9,4 +10,4 @@ def assina_dados(dados, chave_privada):
         ),
         hashes.SHA256()
     )
-    return assinatura.hex()
+    return assinatura

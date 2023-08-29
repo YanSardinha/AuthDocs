@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assinar Documento</title>
+    <title>Assinar Documento Existente</title>
 </head>
 <body>
-    <h1>Assinar Documento</h1>
-    <form method="post" action="{% url 'assinar_documento' %}" enctype="multipart/form-data">
+    <h1>Assinar Documento Existente</h1>
+    <form method="post">
         {% csrf_token %}
-        <label for="arquivo">Selecione um arquivo DOCX ou PDF:</label>
-        <input type="file" id="arquivo" name="arquivo" accept=".docx,.pdf">
+        <label for="documento">Selecione um documento:</label>
+        <select id="documento" name="documento">
+            {% for documento in documentos %}
+                <option value="{{ documento.id }}">{{ documento.arquivo }}</option>
+            {% endfor %}
+        </select>
         <button type="submit">Assinar Documento</button>
     </form>
 </body>

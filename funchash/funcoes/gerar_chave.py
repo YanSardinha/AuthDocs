@@ -22,5 +22,4 @@ def gera_chaves():
 
     return {
         'chave_publica': chave_publica_bytes.decode('utf-8'),
-        'chave_privada': chave_privada_bytes.decode('utf-8')
-    }
+        'chave_privada': chave_privada_bytes.decode('utf-8')}
