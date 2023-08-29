@@ -5,16 +5,21 @@
 </head>
 <body>
     <h1>Assinar Documento</h1>
-    <form method="post">
-        {% csrf_token %}
-        <label for="documento_id">Selecione o Documento:</label>
-        <select name="documento_id" id="documento_id">
-            {% for documento in documentos %}
-                <option value="{{ documento.id }}">{{ documento.arquivo }}</option>
-            {% endfor %}
-        </select>
-        <br>
-        <button type="submit">Assinar Documento</button>
-    </form>
+
+    {% if chaves %}
+        <form method="post">
+            {% csrf_token %}
+            <select name="documento_id">
+                {% for documento in documentos %}
+                    <option value="{{ documento.id }}">{{ documento.arquivo }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Assinar Documento</button>
+        </form>
+    {% else %}
+        <p>Você ainda não possui chaves públicas ou privadas.</p>
+        <p>Por favor, gere suas chaves para poder assinar documentos.</p>
+    {% endif %}
+
 </body>
 </html>

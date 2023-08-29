@@ -4,27 +4,18 @@
     <title>Validar Assinatura</title>
 </head>
 <body>
-    <h1>Validar Assinatura</h1>
-    <form method="post">
-        {% csrf_token %}
-        <label for="documento_id">Selecione o Documento:</label>
-        <select name="documento_id" id="documento_id">
-            {% for documento in documentos %}
-                <option value="{{ documento.id }}">{{ documento.arquivo }}</option>
-            {% endfor %}
-        </select>
-        <br>
-        <button type="submit">Validar Assinatura</button>
-    </form>
-    <br>
-    {% if valido is not None %}
-        <p>
-            {% if valido %}
-                O documento foi assinado por você.
-            {% else %}
-                O documento NÃO foi assinado por você.
-            {% endif %}
-        </p>
+    <h1>Validar Assinatura de Documento</h1>
+
+    <p>Documento: {{ documento.nome }}</p>
+    <p>Assinatura Válida: {{ valid }}</p>
+    {% if valid %}
+        <p>A assinatura é válida.</p>
+    {% else %}
+        <p>A assinatura é inválida ou ocorreu um erro na verificação.</p>
+        <p>Mensagem de Erro: {{ mensagem }}</p>
     {% endif %}
+
+    <a href="{% url 'lista_documentos' %}">Verificar outro Documento</a>
+    <br>
 </body>
 </html>

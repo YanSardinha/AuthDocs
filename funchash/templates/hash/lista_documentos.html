@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista de Documentos</title>
+</head>
+<body>
+    <h1>Lista de Documentos</h1>
+
+    <ul>
+        {% for documento in documentos %}
+            <li>
+                <h2>{{ documento.arquivo }}</h2>
+                <p>Assinatura: {{ documento.assinatura }}</p>
+                <a href="{% url 'validar_assinatura' documento.id %}">Validar Assinatura</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <a href="{% url 'assinar_documento' %}">Assinar um Documento</a>
+</body>
+</html>

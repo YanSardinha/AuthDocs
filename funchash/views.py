@@ -68,75 +68,108 @@ def anexar_documento(request):
 
 @login_required
 def assinar_documento(request):
-    if request.method == 'POST':
-        documento_id = request.POST.get('documento_id')
-
+    try:
         chaves = Chaves.objects.get(user=request.user)
-        chave_privada_pem = chaves.chave_privada.encode()
-        chave_privada = serialization.load_pem_private_key(
-            chave_privada_pem,
-            password=None,
-        )
+    except Chaves.DoesNotExist:
+        chaves = None
 
-        documento = Documento.objects.get(id=documento_id)
-
-        with open(documento.arquivo.path, 'rb') as f:
-            conteudo = f.read()
-        conteudo_hash = hashes.Hash(hashes.SHA256())
-        conteudo_hash.update(conteudo)
-        dados_hash = conteudo_hash.finalize()
-
-        assinatura = chave_privada.sign(
-            dados_hash,
-            padding.PSS(
-                mgf=padding.MGF1(hashes.SHA256()),
-                salt_length=padding.PSS.MAX_LENGTH
-            ),
-            hashes.SHA256()
-        )
-
-        documento.assinatura = assinatura
-        documento.conteudo_hash = dados_hash
-        documento.save()
-
-        return redirect('documento_assinado')
-
-
-    documentos = Documento.objects.filter(usuario=request.user)
-    return render(request, 'hash/assinar_documento.html', {'documentos': documentos})
-
-@login_required
-def validar_assinatura(request):
     if request.method == 'POST':
-        documento_id = request.POST.get('documento_id')
+        if chaves is None:
+            mensagem = "Você ainda não possui chaves públicas ou privadas."
+        else:
+            documento_id = request.POST.get('documento_id')
 
-        chaves = Chaves.objects.get(user=request.user)
-        chave_publica_pem = chaves.chave_publica.encode()
-        chave_publica = serialization.load_pem_public_key(chave_publica_pem)
+            chave_privada_pem = chaves.chave_privada.encode()
+            chave_privada = serialization.load_pem_private_key(
+                chave_privada_pem,
+                password=None,
+            )
 
-        documento = Documento.objects.get(id=documento_id)
+            documento = Documento.objects.get(id=documento_id)
 
-        try:
-            chave_publica.verify(
-                documento.assinatura,
-                documento.conteudo_hash,
+            nome_usuario = request.user.username
+            email_usuario = request.user.email
+
+            conteudo_hash = hashes.Hash(hashes.SHA256(), backend=default_backend())
+            conteudo_hash.update(f"{nome_usuario}{email_usuario}".encode('utf-8'))
+            dados_hash = conteudo_hash.finalize()
+
+            assinatura = chave_privada.sign(
+                dados_hash,
                 padding.PSS(
                     mgf=padding.MGF1(hashes.SHA256()),
                     salt_length=padding.PSS.MAX_LENGTH
                 ),
                 hashes.SHA256()
             )
-            valido = True
-        except:
-            valido = False
 
-        documentos = Documento.objects.filter(usuario=request.user)
-        return render(request, 'hash/validar_assinatura.html', {'documentos': documentos, 'valido': valido})
+            documento.assinatura = assinatura.hex()  # Armazena a assinatura como string hexadecimal
+            documento.conteudo_hash = dados_hash
+            documento.save()
 
+            return redirect('documento_assinado')
+
+    documentos = Documento.objects.filter(usuario=request.user)
+    return render(request, 'hash/assinar_documento.html', {'documentos': documentos, 'chaves': chaves})
+
+
+
+@login_required
+def validar_assinatura(request, documento_id):
+    documento = get_object_or_404(Documento, pk=documento_id)
+
+    try:
+        chaves = Chaves.objects.get(user=request.user)
+    except Chaves.DoesNotExist:
+        chaves = None
+
+    mensagem = ""
+    valid = False
+
+    if chaves is None:
+        mensagem = "Você ainda não possui chaves públicas ou privadas."
     else:
-        documentos = Documento.objects.filter(usuario=request.user)
-        return render(request, 'hash/validar_assinatura.html', {'documentos': documentos})
-    
+        try:
+            chave_publica = load_pem_public_key(
+                chaves.chave_publica.encode(),
+                backend=default_backend()
+            )
+
+            nome_usuario = request.user.username
+            email_usuario = request.user.email
+
+            conteudo_hash = hashes.Hash(hashes.SHA256(), backend=default_backend())
+            conteudo_hash.update(f"{nome_usuario}{email_usuario}".encode('utf-8'))
+            hash_nome_email = conteudo_hash.finalize()
+
+            assinatura_hex = documento.assinatura  # Certifique-se de que a assinatura está armazenada como string hexadecimal
+            assinatura = bytes.fromhex(assinatura_hex)
+
+            try:
+                chave_publica.verify(
+                    assinatura,
+                    hash_nome_email,  # Usar o hash do nome de usuário e email
+                    padding.PSS(
+                        mgf=padding.MGF1(hashes.SHA256()),
+                        salt_length=padding.PSS.MAX_LENGTH
+                    ),
+                    hashes.SHA256()
+                )
+                valid = True
+            except InvalidSignature:
+                valid = False
+        except Exception as e:
+            mensagem = f"Erro ao verificar a assinatura: {e}"
+
+    return render(request, 'hash/validar_assinatura.html', {'documento': documento, 'valid': valid, 'mensagem': mensagem})
+
+
+
+def lista_documentos(request):
+    documentos = Documento.objects.all()  # Alterado aqui
+    return render(request, 'hash/lista_documentos.html', {'documentos': documentos})
+
+
 
 @login_required
 def criar_mensagem(request):
@@ -224,3 +257,5 @@ def validar_mensagem(request, mensagem_id):
         valid = False
     
     return render(request, 'mensagem/validar_mensagem.html', {'mensagem': mensagem, 'valid': valid})
+
+
