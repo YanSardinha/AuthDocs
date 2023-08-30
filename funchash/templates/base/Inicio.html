@@ -84,6 +84,12 @@
             font-size: 20px;
         }
 
+        .unverified-icon {
+            color: red;
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
         .pdf-icon {
             color: red;
             margin-left: 10px;
@@ -161,6 +167,7 @@
               {% for documento in documentos %}
                 <div class="document">
                     <span class="verified-icon">&#x2714;</span>
+                    <span class="unverified-icon">&#10006;</span>
                     <span>{{documento.nome}}</span>
                     <span>{{documento.data_anexo|date:"d/m/Y H:i"}}</span>
                     <a href="#" class="pdf-icon" title="Download PDF"><i class="fas fa-file-pdf"></i></a>
@@ -180,10 +187,22 @@
             </div>
         </div>
         <div class="assinarDocumento-content" style="display: none;">
+          <div class="documents">
             <!-- Conteúdo para a tela "Assinar documento" -->
         </div>
         <div class="documentos-content" style="display: none;">
-            <!-- Conteúdo para a tela "Documentos" -->
+          {% for documento in documentos %}
+            <div class="document">
+                <span class="verified-icon">&#x2714;</span>
+              {% else %}
+                <span class="unverified-icon">&#10006;</span>
+              {% endif %}
+                <span>{{documento.nome}}</span>
+                <span>{{documento.data_anexo|date:"d/m/Y H:i"}}</span>
+                <a href="#" class="pdf-icon" title="Download PDF"><i class="fas fa-file-pdf"></i></a>
+            </div>
+          {% endfor %}
+          </div>
         </div>
     </div>
 
