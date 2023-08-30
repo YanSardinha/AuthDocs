@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from .views import gerar_chaves, assinar_documento, anexar_documento, validar_assinatura, index, inicio, criar_mensagem, lista_mensagens, validar_mensagem, lista_documentos
+from .views import valida_assinatura_publica, gerar_chaves, assinar_documento, anexar_documento, validar_assinatura, index, inicio, criar_mensagem, lista_mensagens, validar_mensagem, lista_documentos
 
 urlpatterns = [
     path('', index, name="index"),
@@ -13,4 +13,5 @@ urlpatterns = [
     path('validar/<int:mensagem_id>/', validar_mensagem, name='validar_mensagem'),
     path('documentos/', lista_documentos, name='lista_documentos'),
     path('validar_assinatura/<int:documento_id>/', validar_assinatura, name='validar_assinatura'),
+    path('valida_assinatura_publica/', valida_assinatura_publica, name='valida_assinatura_publica'),
 ]

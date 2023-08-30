@@ -102,8 +102,9 @@
     <h2>Verificar Documento</h2>
     <label for="hashInput">Insira o hash criptografado:</label>
     <input type="text" id="hashInput" required><br>
-    <button class="btn btn-green">Verificar Documento</button>
+    <button class="btn btn-green" onclick="verifyDocument()">Verificar Documento</button>
     <button class="btn btn-red" onclick="switchToRegisterScreen()">Voltar</button>
+    <p id="verificationResult" style="margin-top: 10px;"></p>
 </div>
 
 <footer>
@@ -119,8 +120,32 @@
     function switchToRegisterScreen() {
         document.getElementById('verify-screen').style.display = 'none';
         document.getElementById('register-screen').style.display = 'block';
+        document.getElementById('verificationResult').innerText = '';  // Limpa o resultado da verificação ao voltar
     }
+
+  function verifyDocument() {
+      const hashInput = document.getElementById('hashInput').value;
+      
+      fetch("{% url 'valida_assinatura_publica' %}", {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'X-CSRFToken': '{{ csrf_token }}',
+          },
+          body: 'signature=' + encodeURIComponent(hashInput)
+      })
+      .then(response => response.json())
+      .then(data => {
+          document.getElementById('verificationResult').innerText = data.status;
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          document.getElementById('verificationResult').innerText = 'Erro ao verificar assinatura.';
+      });
+  }
 </script>
+
+
 
 </body>
 

@@ -1,17 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.contrib.auth import authenticate, login
 from .models import Chaves, Documento, Mensagem
 from .forms import DocumentoForm, ValidacaoAssinaturaForm, MensagemForm
 from .funcoes.gerar_chave import gera_chaves
-from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import hashes
-from django.contrib import messages
-from django.contrib.auth import authenticate, login
 from cryptography.hazmat.backends import default_backend
 from cryptography.exceptions import InvalidSignature
-from cryptography.hazmat.primitives.serialization import load_pem_public_key
-
+from django.http import JsonResponse
 
 def index(request):
     if request.method == 'POST':
@@ -25,6 +23,43 @@ def index(request):
             messages.error(request, 'Credenciais inválidas. Por favor, tente novamente.')
 
     return render(request, 'base/index.html')
+
+def valida_assinatura_publica(request):
+    if request.method == 'POST':
+        received_signature = request.POST.get('signature')  # Supondo que a assinatura é passada como parâmetro POST 'signature'
+
+        if received_signature:
+            documentos = Documento.objects.all()
+
+            for documento in documentos:
+                chave_publica_pem = documento.usuario.chaves.chave_publica.encode('utf-8')
+                chave_publica = serialization.load_pem_public_key(
+                    chave_publica_pem,
+                    backend=default_backend()
+                )
+
+                try:
+                    received_signature_bytes = bytes.fromhex(received_signature)  # Converta a string hexadecimal de volta para bytes
+                    chave_publica.verify(
+                        received_signature_bytes,
+                        documento.conteudo_hash,
+                        padding.PSS(
+                            mgf=padding.MGF1(hashes.SHA256()),
+                            salt_length=padding.PSS.MAX_LENGTH
+                        ),
+                        hashes.SHA256()
+                    )
+                    return JsonResponse({'status': f'Assinatura válida para o usuário {documento.usuario.username}.'})
+
+                except Exception as e:
+                    pass
+
+            return JsonResponse({'status': 'Assinatura inválida para todos os usuários.'})
+
+        else:
+            return JsonResponse({'status': 'Assinatura não fornecida.'})
+
+    return JsonResponse({'status': 'Método não permitido.'})
 
 @login_required
 def inicio(request):
@@ -129,7 +164,7 @@ def validar_assinatura(request, documento_id):
         mensagem = "Você ainda não possui chaves públicas ou privadas."
     else:
         try:
-            chave_publica = load_pem_public_key(
+            chave_publica = serialization.load_pem_public_key(
                 chaves.chave_publica.encode(),
                 backend=default_backend()
             )
@@ -227,7 +262,7 @@ def validar_mensagem(request, mensagem_id):
     try:
         chaves = Chaves.objects.get(user=request.user)
 
-        chave_publica = load_pem_public_key(
+        chave_publica = serialization.load_pem_public_key(
             chaves.chave_publica.encode(),
             backend=default_backend()
         )
