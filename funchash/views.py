@@ -21,7 +21,6 @@ def index(request):
         
         if user is not None:
             login(request, user)
-            return redirect('inicio')  
         else:
             messages.error(request, 'Credenciais inválidas. Por favor, tente novamente.')
 

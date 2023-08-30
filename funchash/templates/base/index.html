@@ -84,16 +84,16 @@
 
 <body>
 
-<div id="register-screen">
+  <div id="register-screen">
     <img src="https://i.imgur.com/ZvEgmfo.png" alt="AuthDocs Logo" class="logo">
     <p>Cadastre-se ou entre com sua conta:</p>
-    <form method="post" action="{% url 'inicio' %}">
-      {% csrf_token %}
-        <input type="text" placeholder="Usuário" required><br>
-        <input type="password" placeholder="Senha" required><br>
-        <input type="submit" value="Cadastrar" class="btn btn-green">
+    <form method="post" action="{% url 'login' %}?next={% url 'inicio' %}">
+        {% csrf_token %}
+        <input type="text" name="username" placeholder="Usuário" required><br>
+        <input type="password" name="password" placeholder="Senha" required><br>
         <input type="submit" value="Entrar" class="btn btn-blue">
     </form>
+    <input type="submit" value="Cadastrar" class="btn btn-green">
     <button class="btn btn-orange" onclick="switchToVerifyScreen()">Verificar Documento Sem Cadastro</button>
 </div>
 
