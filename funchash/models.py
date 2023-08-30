@@ -15,9 +15,12 @@ class Chaves(models.Model):
 
 class Documento(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    nome = models.CharField(max_length=100)
     arquivo = models.FileField(upload_to='documentos/')
     assinatura = models.TextField(null=True, blank=True)
     conteudo_hash = models.BinaryField(null=True, blank=True)
+    data_anexo = models.DateTimeField(auto_now_add=True)
+    data_assinatura = models.DateTimeField(null=True, blank=True)
 
 
 class Mensagem(models.Model):

@@ -10,6 +10,8 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.backends import default_backend
 from cryptography.exceptions import InvalidSignature
 from django.http import JsonResponse
+import datetime
+
 
 def index(request):
     if request.method == 'POST':
@@ -63,7 +65,8 @@ def valida_assinatura_publica(request):
 
 @login_required
 def inicio(request):
-    return render(request, template_name='base/inicio.html')
+    documentos = Documento.objects.all().order_by('-data_anexo')
+    return render(request, template_name='base/inicio.html', context={'documentos':documentos})
 
 @login_required
 def gerar_chaves(request):
@@ -139,6 +142,7 @@ def assinar_documento(request):
 
             documento.assinatura = assinatura.hex()  # Armazena a assinatura como string hexadecimal
             documento.conteudo_hash = dados_hash
+            documento.data_assinatura = datetime.datetime.now()
             documento.save()
 
             return redirect('documento_assinado')
