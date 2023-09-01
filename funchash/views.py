@@ -11,6 +11,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.exceptions import InvalidSignature
 from django.http import JsonResponse
 import datetime
+from django.db.models import Q
 
 
 def index(request):
@@ -65,11 +66,6 @@ def valida_assinatura_publica(request):
 
 @login_required
 def inicio(request):
-    documentos = Documento.objects.all().order_by('-data_anexo')
-    return render(request, template_name='base/inicio.html', context={'documentos':documentos})
-
-@login_required
-def gerar_chaves(request):
     user = request.user
     chave_obj, created = Chaves.objects.get_or_create(user=user)
 
@@ -79,11 +75,13 @@ def gerar_chaves(request):
         chave_obj.chave_privada = chaves['chave_privada']
         chave_obj.save()
 
-    return render(
-        request,
-        template_name='hash/gerar_chaves.html',
-        context={'chaves': chave_obj},
-    )
+    documentos = Documento.objects.all().order_by('-data_anexo')
+    user_documentos = Documento.objects.filter(
+        Q(usuario=request.user) & (Q(data_assinatura__isnull=True) | Q(data_assinatura__isnull=False))
+    ).order_by('-data_assinatura')
+    chaves_usuario = Chaves.objects.get(user=request.user)
+    return render(request, template_name='base/inicio.html', context={'documentos':documentos, 'user_documentos': user_documentos, 'chaves_usuario': chaves_usuario})
+
 
 @login_required
 def anexar_documento(request):

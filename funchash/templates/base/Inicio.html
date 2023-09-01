@@ -164,16 +164,25 @@
     <div class="content">
         <div class="inicio-content">
             <div class="documents">
-              {% for documento in documentos %}
+              {% if user_documentos %}
+              {% for user_documento in user_documentos %}
                 <div class="document">
                     <span class="verified-icon">&#x2714;</span>
-                    <span class="unverified-icon">&#10006;</span>
-                    <span>{{documento.nome}}</span>
-                    <span>{{documento.data_anexo|date:"d/m/Y H:i"}}</span>
+                    <span>{{user_documento.nome}}</span>
+                    <span>{{user_documento.data_anexo|date:"d/m/Y H:i"}}</span>
                     <a href="#" class="pdf-icon" title="Download PDF"><i class="fas fa-file-pdf"></i></a>
                 </div>
               {% endfor %}
+              {% else %}
+            <div class="document">
+              <span class="unverified-icon">&#10006;</span>
+              <span>Ainda não existe nenhum documento</span>
+              <span>Clique aqui para anexar</span>
+              <a href="#" class="pdf-icon" title="Download PDF"><i class="fas fa-file-pdf"></i></a>
             </div>
+            {% endif %}
+            </div>
+            
         </div>
         <div class="gerarChaves-content" style="display: none;">
             <div class="key-menu">
@@ -189,20 +198,21 @@
         <div class="assinarDocumento-content" style="display: none;">
           <div class="documents">
             <!-- Conteúdo para a tela "Assinar documento" -->
+          </div>
         </div>
         <div class="documentos-content" style="display: none;">
-          {% for documento in documentos %}
-            <div class="document">
-                <span class="verified-icon">&#x2714;</span>
-              {% else %}
-                <span class="unverified-icon">&#10006;</span>
-              {% endif %}
-                <span>{{documento.nome}}</span>
-                <span>{{documento.data_anexo|date:"d/m/Y H:i"}}</span>
-                <a href="#" class="pdf-icon" title="Download PDF"><i class="fas fa-file-pdf"></i></a>
+          <div class="inicio-content">
+            <div class="documents">
+              {% for documento in documentos %}
+                <div class="document">
+                  <span class="verified-icon">&#x2714;</span>
+                  <span>{{documento.nome}}</span>
+                  <span>{{documento.data_anexo|date:"d/m/Y H:i"}}</span>
+                  <a href="#" class="pdf-icon" title="Download PDF"><i class="fas fa-file-pdf"></i></a>
+                </div>
+              {% endfor %}
             </div>
-          {% endfor %}
-          </div>
+        </div>
         </div>
     </div>
 
@@ -211,11 +221,13 @@
     </footer>
 
     <script>
+        let CurrentUserPublicKey = "{{ chaves_usuario.chave_publica|linebreaksbr }}";
+        let CurrentUserprivateKey = "{{ chaves_usuario.chave_privada|linebreaksbr }}";
         let menuItems = document.querySelectorAll('.menu a');
         let contentSections = document.querySelectorAll('.content > div');
         let keyMenus = document.querySelectorAll('.key-menu a');
         let keyFields = document.querySelectorAll('.key-field');
-        
+
         menuItems.forEach(item => {
             item.addEventListener('click', function() {
                 menuItems.forEach(i => i.classList.remove('active'));
@@ -237,15 +249,11 @@
                 document.getElementById(fieldId).style.display = 'block';
             });
         });
-        
-        function generateKeys() {
-            // Gerando chaves fictícias para fins de demonstração
-            let publicKey = 'PUB-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-            let privateKey = 'PRV-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-        
-            document.getElementById('publicKey').value = publicKey;
-            document.getElementById('privateKey').value = privateKey;
-        }
+
+        function generateKeys() { 
+          document.getElementById('publicKey').value = CurrentUserPublicKey.replace(/<br>/g, '\n');
+          document.getElementById('privateKey').value = CurrentUserprivateKey.replace(/<br>/g, '\n');
+    }
     </script>
 
 </body>
