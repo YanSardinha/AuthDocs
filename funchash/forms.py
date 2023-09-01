@@ -4,7 +4,7 @@ from .models import Documento, Mensagem
 class DocumentoForm(forms.ModelForm):
     class Meta:
         model = Documento
-        fields = ('arquivo',)
+        fields = ('nome','arquivo',)
 
 
 class ValidacaoAssinaturaForm(forms.Form):

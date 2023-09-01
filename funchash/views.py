@@ -95,31 +95,23 @@ def inicio(request):
         chave_obj.chave_privada = chaves['chave_privada']
         chave_obj.save()
 
-    documentos = Documento.objects.all().order_by('-data_anexo')
+    documentos = Documento.objects.filter(Q(usuario=request.user)).order_by('-data_anexo')
     user_documentos = Documento.objects.filter(
-        Q(usuario=request.user) & (Q(data_assinatura__isnull=True) | Q(data_assinatura__isnull=False))
-    ).order_by('-data_assinatura')
+        Q(usuario=request.user) & Q(data_assinatura__isnull=False)
+    ).order_by('-data_anexo')
     chaves_usuario = Chaves.objects.get(user=request.user)
-    return render(request, template_name='base/inicio.html', context={'documentos':documentos, 'user_documentos': user_documentos, 'chaves_usuario': chaves_usuario})
 
-
-@login_required
-def anexar_documento(request):
     if request.method == 'POST':
         form = DocumentoForm(request.POST, request.FILES)
         if form.is_valid():
             documento = form.save(commit=False)
             documento.usuario = request.user
             documento.save()
-            return redirect('lista_documentos') 
+            return redirect('inicio')
     else:
-        form = DocumentoForm()
+        form = DocumentoForm()  
 
-    return render(
-        request,
-        template_name='hash/anexar_documento.html',
-        context={'form': form},
-    )
+    return render(request, template_name='base/inicio.html', context={'documentos':documentos, 'user_documentos': user_documentos, 'chaves_usuario': chaves_usuario, 'form': form})
 
 @login_required
 def assinar_documento(request):
@@ -163,7 +155,7 @@ def assinar_documento(request):
             documento.data_assinatura = datetime.datetime.now()
             documento.save()
 
-            return redirect('documento_assinado')
+            return redirect('inicio')
 
     documentos = Documento.objects.filter(usuario=request.user)
     return render(request, 'hash/assinar_documento.html', {'documentos': documentos, 'chaves': chaves})
