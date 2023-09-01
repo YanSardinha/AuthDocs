@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from .models import Chaves, Documento, Mensagem
-from .forms import DocumentoForm, ValidacaoAssinaturaForm, MensagemForm
+from .forms import DocumentoForm, MensagemForm
 from .funcoes.gerar_chave import gera_chaves
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -12,18 +12,38 @@ from cryptography.exceptions import InvalidSignature
 from django.http import JsonResponse
 import datetime
 from django.db.models import Q
-
+from django.contrib.auth.models import User
 
 def index(request):
+    print('oi')
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        
-        if user is not None:
-            login(request, user)
-        else:
-            messages.error(request, 'Credenciais inválidas. Por favor, tente novamente.')
+        print('oi',request.method)
+        if 'login' in request.POST:
+          username = request.POST['username']
+          password = request.POST['password']
+          user = authenticate(request, username=username, password=password)
+          
+          if user is not None:
+              login(request, user)
+              return redirect('inicio')
+          else:
+              messages.error(request, 'Credenciais inválidas. Por favor, tente novamente.')
+        elif 'register' in request.POST:
+            username = request.POST['username']
+            password = request.POST['password']
+            email = request.POST['email']
+
+            if User.objects.filter(username=username).exists():
+                messages.error(request, 'Este nome de usuário já está em uso. Por favor, escolha outro.')
+            elif User.objects.filter(email=email).exists():
+                messages.error(request, 'Este e-mail já está em uso. Por favor, escolha outro.')
+            else:
+                user = User.objects.create_user(username=username, email=email, password=password)
+                user.save()
+                login(request, user)
+                return redirect('inicio')
+    else:
+      print('out',request.method)
 
     return render(request, 'base/index.html')
 

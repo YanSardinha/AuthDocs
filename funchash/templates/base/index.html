@@ -86,12 +86,19 @@
 
   <div id="login-screen" class="screen">
     <img src="https://i.imgur.com/ZvEgmfo.png" alt="AuthDocs Logo" class="logo">
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
     <p>Entre com sua conta:</p>
-    <form method="post" action="{% url 'login' %}?next={% url 'inicio' %}">
+    <form method="POST">
         {% csrf_token %}
-        <input type="text" placeholder="Usuário" required><br>
-        <input type="password" placeholder="Senha" required><br>
-        <input type="submit" value="Entrar" class="btn btn-blue">
+        <input type="text" name="username" placeholder="Usuário" required><br>
+        <input type="password" name="password" placeholder="Senha" required><br>
+        <input type="submit" name="login" value="Entrar" class="btn btn-blue">
     </form>
     <button class="btn btn-green" onclick="switchToRegisterScreen()">Cadastrar-se</button>
     <button class="btn btn-orange" onclick="switchToVerifyScreen()">Verificar Documento Sem Cadastro</button>
@@ -99,12 +106,20 @@
 
   <div id="register-screen" class="screen" style="display: none;">
     <img src="https://i.imgur.com/ZvEgmfo.png" alt="AuthDocs Logo" class="logo">
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
     <p>Cadastre-se:</p>
-    <form>
-        <input type="text" placeholder="Nome" required><br>
-        <input type="text" placeholder="E-mail" required><br>
-        <input type="password" placeholder="Senha" required><br>
-        <input type="submit" value="Cadastrar" class="btn btn-green">
+    <form method="POST">
+      {% csrf_token %}
+        <input type="text" name="username" placeholder="Nome" required><br>
+        <input type="text" name="email" placeholder="E-mail" required><br>
+        <input type="password" name="password" placeholder="Senha" required><br>
+        <input type="submit" name="register" value="Cadastrar" class="btn btn-green">
     </form>
     <button class="btn btn-red" onclick="switchToLoginScreen()">Voltar</button>
   </div>

@@ -201,17 +201,19 @@
           </div>
         </div>
         <div class="documentos-content" style="display: none;">
-          <div class="inicio-content">
-            <div class="documents">
-              {% for documento in documentos %}
-                <div class="document">
-                  <span class="verified-icon">&#x2714;</span>
-                  <span>{{documento.nome}}</span>
-                  <span>{{documento.data_anexo|date:"d/m/Y H:i"}}</span>
-                  <a href="#" class="pdf-icon" title="Download PDF"><i class="fas fa-file-pdf"></i></a>
-                </div>
-              {% endfor %}
+          <div class="documents">
+          {% for documento in documentos %}
+            <div class="document">
+              {% if documento.data_assinatura != '' %}
+                <span class="verified-icon">&#x2714;</span>
+              {% else %}
+                <span class="unverified-icon">&#10006;</span>
+              {% endif %}
+                <span>{{documento.nome}}</span>
+                <span>{{documento.data_anexo|date:"d/m/Y H:i"}}</span>
+                <a href="#" class="pdf-icon" title="Download PDF"><i class="fas fa-file-pdf"></i></a>
             </div>
+          {% endfor %}
         </div>
         </div>
     </div>
