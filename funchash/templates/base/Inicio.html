@@ -375,27 +375,35 @@
     <div class="menu">
         <a href="#" id="inicio" class="active">Início</a>
         <a href="#" id="gerarChaves">Gerar chaves</a>
-        <a href="#" id="assinarDocumento">Assinar documento</a>
+        <a href="#" id="assinarDocumento">Anexar documento</a>
         <a href="#" id="documentos">Documentos</a>
     </div>
 
     <div class="content">
         <div class="inicio-content">
             <div class="documents">
-              {% if user_documentos %}
-              {% for user_documento in user_documentos %}
-                <div class="document">
-                    <span class="verified-icon">&#x2714;</span>
-                    <span>{{user_documento.nome}}</span>
-                    <span>{{user_documento.data_anexo|date:"d/m/Y H:i"}}</span>
+              {% if documentos %}
+              {% for documento in documentos %}
+                {% if documento.data_assinatura != None %}
+                  <div class="document">
+                      <span class="verified-icon">&#x2714;</span>
+                      <span>{{documento.nome}}</span>
+                      <span>{{documento.data_anexo|date:"d/m/Y H:i"}}</span>
+                      <a href="#" class="pdf-icon" title="Download PDF"><i class="fas fa-file-pdf"></i></a>
+                  </div>
+                {% else %}
+                  <div class="document">
+                    <span class="unverified-icon" style="color: red;">&#10006;</span>
+                    <span>{{documento.nome}}</span>
+                    <span>{{documento.data_anexo|date:"d/m/Y H:i"}}</span>
                     <a href="#" class="pdf-icon" title="Download PDF"><i class="fas fa-file-pdf"></i></a>
-                </div>
+                  </div>
+                {% endif %}
               {% endfor %}
               {% else %}
             <div class="document">
-              <span class="unverified-icon">&#10006;</span>
+              <span class="unverified-icon" style="color: red;">&#10006;</span>
               <span>Ainda não existe nenhum documento</span>
-              <span>Clique aqui para anexar</span>
               <a href="#" class="pdf-icon" title="Download PDF"><i class="fas fa-file-pdf"></i></a>
             </div>
             {% endif %}
@@ -438,18 +446,21 @@
       
       <div class="documentos-content" style="display: none;">
         <div class="documents">
-            {% for documento in documentos %}
+          <p>Para assinar um documento clique no icone ao lado esquerdo do mesmo.</p>
+          {% if documentos %}
+            {% for user_documento in user_documentos %}
             <div class="document">
-                {% if documento.data_assinatura != None %}
+                {% if user_documento.data_assinatura != None %}
                 <span class="verified-icon">&#x2714;</span>
                 {% else %}
-                <img src="https://imgur.com/FVZWbTn.jpg" alt="Saved Document Icon" width="24" style="margin-right: 10px;" class="assinatura-trigger" data-documento-id="{{ documento.id }}">
+                <img src="https://imgur.com/FVZWbTn.jpg" alt="Saved Document Icon" width="24" style="margin-right: 10px;" class="assinatura-trigger" data-documento-id="{{ user_documento.id }}">
                 {% endif %}
-                <span>{{documento.nome}}</span>
-                <span>{{documento.data_anexo|date:"d/m/Y H:i"}}</span>
+                <span>{{user_documento.nome}}</span>
+                <span>{{user_documento.data_anexo|date:"d/m/Y H:i"}}</span>
                 <a href="#" class="pdf-icon" title="Download PDF"><i class="fas fa-file-pdf"></i></a>
             </div>
             {% endfor %}
+            {% endif %}
         </div>
     </div>
     
@@ -495,20 +506,14 @@
           });
       });
   
-      // Seleciona o elemento de entrada de arquivo
       const fileInput = document.getElementById('document-upload');
   
-      // Seleciona o elemento de exibição do nome do arquivo
       const fileNameDisplay = document.getElementById('selected-file-name');
   
-      // Adiciona um ouvinte de evento 'change' para o elemento de entrada de arquivo
       fileInput.addEventListener('change', function() {
-          // Verifica se um arquivo foi selecionado
           if (fileInput.files.length > 0) {
-              // Atualiza o texto do elemento de exibição do nome do arquivo
               fileNameDisplay.textContent = fileInput.files[0].name;
           } else {
-              // Se nenhum arquivo for selecionado, exibe "Nenhum arquivo selecionado"
               fileNameDisplay.textContent = 'Nenhum arquivo selecionado';
           }
       });
@@ -518,59 +523,38 @@
         document.getElementById('privateKey').value = CurrentUserprivateKey.replace(/<br>/g, '\n');
       }
   
-      function showPopup(message) {
-        document.getElementById('popupMessage').innerText = message;
-        document.getElementById('popup').style.display = 'flex';
-      }
-  
-      function closePopup() {
-        document.getElementById('popup').style.display = 'none';
-      }
-  
-      function saveFile() {
-          // Verifique se um arquivo foi selecionado
-          if (fileInput.files.length === 0) {
-              showPopup('Selecione um arquivo antes de salvar.');
-              return;
-          }
-  
-          // Crie um objeto FormData para enviar o arquivo
-          let formData = new FormData();
-          formData.append('document', fileInput.files[0]);
-  
-          // Faça uma solicitação AJAX para enviar o arquivo
-          $.ajax({
-              url: '{% url "inicio" %}', // Substitua pelo URL correto de sua view Django
-              type: 'POST',
-              data: formData,
-              processData: false,
-              contentType: false,
-              success: function(response) {
-                  // Lide com a resposta do servidor aqui, se necessário
-                  showPopup('Arquivo salvo com sucesso!');
-              },
-              error: function(xhr, status, error) {
-                  // Lide com erros aqui, se necessário
-                  showPopup('Erro ao salvar o arquivo: ' + error);
-              }
-          });
+      function showPopup(message, redirectUrl) {
+        const popup = document.getElementById('popup');
+        const popupMessage = document.getElementById('popupMessage');
+
+        popupMessage.innerText = message;
+
+        popup.style.display = 'block';
+
+        setTimeout(function () {
+          window.location.href = redirectUrl; 
+        }, 2000); 
       }
 
+      function closePopup() {
+        const popup = document.getElementById('popup');
+        popup.style.display = 'none';
+      }
 
       document.addEventListener("DOMContentLoaded", function() {
-    const assinaturaTriggerElements = document.querySelectorAll(".assinatura-trigger");
+      const assinaturaTriggerElements = document.querySelectorAll(".assinatura-trigger");
 
     assinaturaTriggerElements.forEach(function(element) {
         element.addEventListener("click", function(event) {
             const documentoId = event.target.getAttribute("data-documento-id");
             const form = document.createElement("form");
             form.method = "POST";
-            form.action = "{% url 'assinar_documento' %}";  // Substitua pelo URL correto da sua view 'assinar_documento'
+            form.action = "{% url 'assinar_documento' %}";  
             
             const csrfInput = document.createElement("input");
             csrfInput.type = "hidden";
             csrfInput.name = "csrfmiddlewaretoken";
-            csrfInput.value = "{{ csrf_token }}";  // Obtenha o token CSRF do template Django
+            csrfInput.value = "{{ csrf_token }}";  
 
             const documentoIdInput = document.createElement("input");
             documentoIdInput.type = "hidden";
@@ -587,8 +571,5 @@
 });
 
   </script>
-  
-
 </body>
-
 </html>
